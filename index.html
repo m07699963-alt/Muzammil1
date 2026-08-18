@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIELDWORK — Built to Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#E8E2D4;
+    --chalk:#F5F1E7;
+    --ink:#1C1B18;
+    --rust:#B5502D;
+    --olive:#5C5F4B;
+    --steel:#8A8776;
+    --line: rgba(28,27,24,0.16);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--canvas);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .display{font-family:'Archivo Black', sans-serif;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 32px;}
+
+  /* stitched dash border, used throughout as signature device */
+  .stitch{
+    background-image: repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 12px);
+    background-size: 100% 1px;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    height:1px;
+    opacity:0.35;
+  }
+  .stitch-v{
+    background-image: repeating-linear-gradient(180deg, var(--ink) 0 6px, transparent 6px 12px);
+    background-size: 1px 100%;
+    width:1px;
+    opacity:0.35;
+  }
+
+  /* ===== HEADER ===== */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(232,226,212,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    height:76px;
+  }
+  .logo{
+    font-family:'Archivo Black', sans-serif;
+    font-size:20px;
+    letter-spacing:0.5px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo .mark{
+    width:11px; height:11px;
+    background:var(--rust);
+    transform:rotate(45deg);
+    flex-shrink:0;
+  }
+  nav ul{
+    list-style:none;
+    display:flex;
+    gap:36px;
+  }
+  nav a{
+    font-size:13px;
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    position:relative;
+    padding-bottom:4px;
+  }
+  nav a::after{
+    content:"";
+    position:absolute; left:0; bottom:0;
+    width:0; height:1px;
+    background:var(--rust);
+    transition:width 0.25s ease;
+  }
+  nav a:hover::after{ width:100%; }
+  .header-actions{
+    display:flex; align-items:center; gap:22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+  }
+  .bag-count{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px;
+    background:var(--ink); color:var(--chalk);
+    border-radius:50%;
+    font-size:11px;
+  }
+  .nav-toggle{ display:none; background:none; border:none; cursor:pointer; }
+  .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after{
+    content:""; display:block; width:22px; height:2px; background:var(--ink);
+    position:relative; transition:0.2s;
+  }
+  .nav-toggle span::before{ position:absolute; top:-7px; }
+  .nav-toggle span::after{ position:absolute; top:7px; }
+
+  @media (max-width:860px){
+    nav{ display:none; }
+    .header-actions .mono.hide-mobile{ display:none; }
+    .nav-toggle{ display:block; }
+  }
+
+  /* ===== BANNER / HERO ===== */
+  .hero{
+    position:relative;
+    padding:64px 0 0;
+    overflow:hidden;
+  }
+  .hero-inner{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items:end;
+    gap:40px;
+    min-height:640px;
+  }
+  .hero-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--rust);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:22px;
+  }
+  .hero-eyebrow::before{
+    content:"";
+    width:26px; height:1px;
+    background:var(--rust);
+  }
+  .hero h1{
+    font-family:'Archivo Black', sans-serif;
+    font-size:clamp(48px, 8vw, 104px);
+    line-height:0.94;
+    letter-spacing:-0.01em;
+    text-transform:uppercase;
+  }
+  .hero h1 .outline{
+    -webkit-text-stroke: 1.5px var(--ink);
+    color:transparent;
+  }
+  .hero p.lede{
+    max-width:420px;
+    font-size:16px;
+    line-height:1.6;
+    color:var(--ink);
+    opacity:0.75;
+    margin-top:26px;
+  }
+  .hero-ctas{
+    display:flex; gap:14px;
+    margin-top:34px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:15px 26px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    border:1px solid var(--ink);
+    cursor:pointer;
+    background:none;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .btn-solid{
+    background:var(--ink); color:var(--chalk);
+  }
+  .btn-solid:hover{ background:var(--rust); border-color:var(--rust); }
+  .btn-ghost:hover{ background:var(--ink); color:var(--chalk); }
+
+  /* garment tag - signature element */
+  .tag{
+    position:relative;
+    background:var(--chalk);
+    border:1px solid var(--line);
+    padding:22px 22px 20px;
+    width:270px;
+    justify-self:end;
+  }
+  .tag::before{
+    content:"";
+    position:absolute; top:14px; right:14px;
+    width:9px; height:9px;
+    border-radius:50%;
+    border:1.5px solid var(--ink);
+    opacity:0.5;
+  }
+  .tag-row{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    padding:6px 0;
+    border-bottom:1px dashed var(--line);
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  .tag-row:last-child{ border-bottom:none; }
+  .tag-row span:first-child{ color:var(--steel); }
+  .tag-title{
+    font-family:'Archivo Black', sans-serif;
+    font-size:13px;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    letter-spacing:0.02em;
+  }
+
+  .hero-visual{
+    grid-column:1 / -1;
+    margin-top:44px;
+    height:220px;
+    position:relative;
+    background:
+      linear-gradient(115deg, var(--olive) 0%, var(--olive) 38%, var(--rust) 38%, var(--rust) 40%, var(--ink) 40%, var(--ink) 100%);
+    display:flex;
+    align-items:center;
+  }
+  .hero-visual .marquee{
+    display:flex;
+    white-space:nowrap;
+    animation: scroll 22s linear infinite;
+    font-family:'Archivo Black', sans-serif;
+    font-size:64px;
+    text-transform:uppercase;
+    color:var(--chalk);
+    opacity:0.9;
+  }
+  .hero-visual .marquee span{ padding:0 28px; display:flex; align-items:center; gap:28px;}
+  .hero-visual .marquee .dot{ width:10px; height:10px; background:var(--chalk); border-radius:50%; opacity:0.6;}
+  @keyframes scroll{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+
+  @media (max-width:860px){
+    .hero-inner{ grid-template-columns:1fr; }
+    .tag{ justify-self:start; width:100%; max-width:280px; }
+  }
+
+  /* ===== SECTION HEADERS ===== */
+  .section{ padding:96px 0; }
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:48px;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .section-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--rust);
+    letter-spacing:0.1em;
+    margin-bottom:10px;
+    display:block;
+  }
+  .section-head h2{
+    font-family:'Archivo Black', sans-serif;
+    font-size:clamp(28px,4vw,42px);
+    text-transform:uppercase;
+    line-height:1.05;
+  }
+  .section-head p{
+    max-width:320px;
+    font-size:14px;
+    color:var(--steel);
+    line-height:1.6;
+  }
+
+  /* ===== PRODUCT GRID ===== */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .card{
+    background:var(--canvas);
+    padding:0;
+    display:flex; flex-direction:column;
+  }
+  .swatch{
+    aspect-ratio:3/4;
+    position:relative;
+    overflow:hidden;
+    display:flex; align-items:flex-end;
+  }
+  .swatch::after{
+    content:attr(data-code);
+    position:absolute; top:14px; left:14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:var(--chalk);
+    letter-spacing:0.05em;
+    opacity:0.8;
+  }
+  .swatch-fill{
+    width:100%; height:100%;
+    transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover .swatch-fill{ transform:scale(1.05); }
+  .c1{ background:linear-gradient(160deg,#6b6f57,#4d5040); }
+  .c2{ background:linear-gradient(160deg,#c96a45,#953f22); }
+  .c3{ background:linear-gradient(160deg,#3a3a35,#1c1b18); }
+  .c4{ background:linear-gradient(160deg,#a9a290,#7d7563); }
+  .card-info{
+    padding:18px 18px 22px;
+    border-top:1px solid var(--line);
+  }
+  .card-info .name{
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    margin-bottom:4px;
+  }
+  .card-info .meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--steel);
+    display:flex; justify-content:space-between;
+  }
+  @media (max-width:860px){
+    .grid{ grid-template-columns:repeat(2,1fr); }
+  }
+
+  /* ===== STORY / SPEC SECTION ===== */
+  .story{
+    background:var(--ink);
+    color:var(--chalk);
+  }
+  .story .wrap{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:center;
+  }
+  .story h2{
+    font-family:'Archivo Black', sans-serif;
+    font-size:clamp(30px,4.5vw,48px);
+    text-transform:uppercase;
+    line-height:1.08;
+    margin-bottom:24px;
+  }
+  .story p{
+    font-size:15px; line-height:1.75;
+    color:rgba(245,241,231,0.72);
+    max-width:460px;
+  }
+  .spec-list{
+    display:flex; flex-direction:column;
+  }
+  .spec-item{
+    display:flex; justify-content:space-between;
+    padding:18px 0;
+    border-bottom:1px solid rgba(245,241,231,0.16);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .spec-item span:first-child{ color:rgba(245,241,231,0.5); }
+  @media (max-width:860px){
+    .story .wrap{ grid-template-columns:1fr; }
+  }
+
+  /* ===== NEWSLETTER STRIP ===== */
+  .strip{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .strip .wrap{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:40px 32px;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .strip h3{
+    font-family:'Archivo Black', sans-serif;
+    font-size:22px;
+    text-transform:uppercase;
+  }
+  .strip form{
+    display:flex;
+    border:1px solid var(--ink);
+  }
+  .strip input{
+    background:none; border:none; outline:none;
+    padding:14px 16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    width:240px;
+    color:var(--ink);
+  }
+  .strip input::placeholder{ color:var(--steel); }
+  .strip button{
+    background:var(--ink); color:var(--chalk);
+    border:none; padding:0 22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px; text-transform:uppercase;
+    cursor:pointer;
+  }
+  .strip button:hover{ background:var(--rust); }
+
+  /* ===== FOOTER ===== */
+  footer{
+    padding:64px 0 28px;
+  }
+  .footer-grid{
+    display:grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap:32px;
+    padding-bottom:48px;
+  }
+  .footer-logo{
+    font-family:'Archivo Black', sans-serif;
+    font-size:20px;
+    margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .footer-logo .mark{
+    width:11px; height:11px; background:var(--rust); transform:rotate(45deg);
+  }
+  .footer-grid p{
+    font-size:13.5px; color:var(--steel); line-height:1.6; max-width:260px;
+  }
+  .footer-col h4{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--rust);
+    margin-bottom:16px;
+  }
+  .footer-col ul{ list-style:none; display:flex; flex-direction:column; gap:11px; }
+  .footer-col a{ font-size:13.5px; color:var(--ink); opacity:0.8; }
+  .footer-col a:hover{ opacity:1; color:var(--rust); }
+  .footer-bottom{
+    display:flex; justify-content:space-between; align-items:center;
+    padding-top:24px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--steel);
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  @media (max-width:860px){
+    .footer-grid{ grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-inner">
+    <a href="#" class="logo"><span class="mark"></span>FIELDWORK</a>
+    <nav>
+      <ul>
+        <li><a href="#new">New Arrivals</a></li>
+        <li><a href="#collection">Collection</a></li>
+        <li><a href="#story">About</a></li>
+        <li><a href="#footer">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a href="#" class="hide-mobile">Search</a>
+      <a href="#" class="hide-mobile">Account</a>
+      <a href="#" style="display:flex; align-items:center; gap:8px;">Bag <span class="bag-count">2</span></a>
+      <button class="nav-toggle" aria-label="Open menu"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="hero-eyebrow">Fall/Winter 026 Collection</div>
+      <h1>Built<br>for the<br><span class="outline">work.</span></h1>
+      <p class="lede">Utility-grade clothing made from raw canvas, selvage denim, and waxed cotton — cut for people who move, not stand still.</p>
+      <div class="hero-ctas">
+        <a href="#collection" class="btn btn-solid">Shop the Collection</a>
+        <a href="#story" class="btn btn-ghost">Our Materials</a>
+      </div>
+    </div>
+    <div class="tag">
+      <div class="tag-title">Care &amp; Spec — 04</div>
+      <div class="tag-row"><span>Fabric</span><span>14oz Raw Canvas</span></div>
+      <div class="tag-row"><span>Fit</span><span>Relaxed / Boxy</span></div>
+      <div class="tag-row"><span>Origin</span><span>Cut &amp; Sewn — Portugal</span></div>
+      <div class="tag-row"><span>Wash</span><span>Cold, Inside Out</span></div>
+      <div class="tag-row"><span>Batch</span><span>№ 0142 / 300</span></div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="marquee">
+        <span>DURABLE <span class="dot"></span> FUNCTIONAL <span class="dot"></span> RAW CANVAS <span class="dot"></span> WAXED COTTON <span class="dot"></span></span>
+        <span>DURABLE <span class="dot"></span> FUNCTIONAL <span class="dot"></span> RAW CANVAS <span class="dot"></span> WAXED COTTON <span class="dot"></span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="collection">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-num">— 01 / Collection</span>
+        <h2>Current Rotation</h2>
+      </div>
+      <p>Four pieces built on repeat: a field jacket, a work shirt, a utility trouser, and a canvas tote. No seasonal noise.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="swatch" data-code="FW—01"><div class="swatch-fill c1"></div></div>
+        <div class="card-info">
+          <div class="name">Olive Field Jacket</div>
+          <div class="meta"><span>Canvas</span><span>$228</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="swatch" data-code="FW—02"><div class="swatch-fill c2"></div></div>
+        <div class="card-info">
+          <div class="name">Rust Work Shirt</div>
+          <div class="meta"><span>Twill</span><span>$126</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="swatch" data-code="FW—03"><div class="swatch-fill c3"></div></div>
+        <div class="card-info">
+          <div class="name">Ink Utility Trouser</div>
+          <div class="meta"><span>Denim</span><span>$168</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="swatch" data-code="FW—04"><div class="swatch-fill c4"></div></div>
+        <div class="card-info">
+          <div class="name">Chalk Canvas Tote</div>
+          <div class="meta"><span>Canvas</span><span>$74</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="story" id="story">
+  <div class="wrap">
+    <div>
+      <h2>Made for wear, not display.</h2>
+      <p>Every FIELDWORK piece starts with a fabric that ages honestly — raw canvas that softens, denim that fades where you move. We work with a single family-run mill in Portugal that's cut for us since the beginning, and we test every garment on the people who make it before it ships.</p>
+    </div>
+    <div class="spec-list">
+      <div class="spec-item"><span>Founded</span><span>Lisbon, 2019</span></div>
+      <div class="spec-item"><span>Production</span><span>Small-batch, 300 units / drop</span></div>
+      <div class="spec-item"><span>Materials</span><span>Canvas · Denim · Waxed Cotton</span></div>
+      <div class="spec-item"><span>Repairs</span><span>Free for the life of the garment</span></div>
+      <div class="spec-item"><span>Shipping</span><span>Worldwide, 3–7 days</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="strip">
+  <div class="wrap">
+    <h3>Get the next drop first.</h3>
+    <form onsubmit="return false;">
+      <input type="email" placeholder="your@email.com" required>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+</div>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="mark"></span>FIELDWORK</div>
+        <p>Utility-grade clothing, cut in small batches from raw canvas and selvage denim. Built to be worn, repaired, and worn again.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="#">New Arrivals</a></li>
+          <li><a href="#">Jackets</a></li>
+          <li><a href="#">Trousers</a></li>
+          <li><a href="#">Accessories</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Materials</a></li>
+          <li><a href="#">Repairs</a></li>
+          <li><a href="#">Stockists</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#">Shipping</a></li>
+          <li><a href="#">Returns</a></li>
+          <li><a href="#">Size Guide</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="stitch"></div>
+    <div class="footer-bottom">
+      <span>© 2026 FIELDWORK. All rights reserved.</span>
+      <span>Lisbon · Portugal</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
